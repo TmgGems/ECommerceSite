@@ -14,7 +14,7 @@
             if (ModelState.IsValid)
             {
                 modeldata.ImageUrl = "/Photos/" + img.FileName;
-                _db.Add(modeldata);
+                _db.Add(modeldata);s
                 _db.SaveChanges();
                 return RedirectToAction("Index", "Category");
             }
