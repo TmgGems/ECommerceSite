@@ -1,0 +1,52 @@
+﻿@model List<Category> 
+
+<div class="card shadow border-0 mt-4">
+
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary text-dark">
+                Category List
+            </h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Category" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"> Create New Category</i>
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Category Name
+                </th>
+                <th>
+                    Image Url
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var data in Model)
+            {
+                <tr>
+                    <td>
+                        @data.Name
+                    </td>
+
+                    <td>
+                        @* @data.ImageUrl *@
+                        <img src="@data.ImageUrl" height="200" alt="hello this image OK"/>
+                    </td>
+                    <td>
+                        <a asp-controller="category" asp-action="edit">edit</a>
+                        <a asp-controller="category" asp-action="delete">delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

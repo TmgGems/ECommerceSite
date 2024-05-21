@@ -22,7 +22,7 @@ namespace ECommereceSiteData.Repository
 
             if (objFromDb != null)
             {
-                objFromDb.CategoryName = obj.CategoryName;
+                objFromDb.Name = obj.Name;
 
                 if(objFromDb.ImageUrl != null)
                 {
