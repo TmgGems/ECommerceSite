@@ -34,25 +34,33 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Create(Category modeldata, IFormFile img)
         {
-
-            if (img != null && img.Length > 0)
+            string data = _unitOfWork.Category.Get(u => u.Name == modeldata.Name).ToString();
+            if(data != null)
             {
-                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
-                using (var filestream = System.IO.File.Create(filepath))
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                if (img != null && img.Length > 0)
                 {
-                    img.CopyTo(filestream);
+                    var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
+                    using (var filestream = System.IO.File.Create(filepath))
+                    {
+                        img.CopyTo(filestream);
+                    }
                 }
-            }
 
 
-            if (ModelState.IsValid)
-            {
-                modeldata.ImageUrl = "/Photos/" + img.FileName;
-                _unitOfWork.Category.Add(modeldata);
-                _unitOfWork.Save();
-                return RedirectToAction("Index", "Category");
+                if (ModelState.IsValid)
+                {
+                    modeldata.ImageUrl = "/Photos/" + img.FileName;
+                    _unitOfWork.Category.Add(modeldata);
+                    _unitOfWork.Save();
+                    return RedirectToAction("Index", "Category");
+                }
+                return View(modeldata);
+
             }
-            return View(modeldata);
 
 
         }
