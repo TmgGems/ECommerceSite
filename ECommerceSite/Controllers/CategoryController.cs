@@ -76,11 +76,34 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Edit(Category modeldata, IFormFile img)
         {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (ModelState.IsValid)
             {
                 if (img != null && img.Length > 0)
                 {
                     var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
+
+                    if (!string.IsNullOrEmpty(modeldata.ImageUrl))
+                    {
+                        //Delete old image
+                        try
+                        {
+                            // Construct the full old image path
+                            var oldImagePath = Path.Combine(wwwRootPath, modeldata.ImageUrl.TrimStart('/'));
+
+                            // Delete old image if it exists
+                            if (System.IO.File.Exists(oldImagePath))
+                            {
+                                System.IO.File.Delete(oldImagePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the exception or handle it as needed
+                            Console.WriteLine($"Error deleting old image: {ex.Message}");
+                        }
+
+                    }
                     using (var filestream = System.IO.File.Create(filepath))
                     {
                         img.CopyTo(filestream);
@@ -127,6 +150,14 @@ namespace ECommerceSite.Controllers
             if (obj == null)
             {
                 return NotFound();
+            }
+            if (!string.IsNullOrEmpty(obj.ImageUrl))
+            {
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
             }
 
             if (ModelState.IsValid)
