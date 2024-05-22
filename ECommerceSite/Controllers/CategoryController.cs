@@ -29,18 +29,18 @@ namespace ECommerceSite.Controllers
         }
         [HttpPost]
 
-        public  IActionResult Create(Category modeldata, IFormFile img)
+        public IActionResult Create(Category modeldata, IFormFile img)
         {
-            
-            if(img != null && img.Length > 0)
+
+            if (img != null && img.Length > 0)
             {
                 var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
                 using (var filestream = System.IO.File.Create(filepath))
                 {
-                     img.CopyTo(filestream);
+                    img.CopyTo(filestream);
                 }
             }
-            
+
 
             if (ModelState.IsValid)
             {
@@ -50,7 +50,7 @@ namespace ECommerceSite.Controllers
                 return RedirectToAction("Index", "Category");
             }
             return View(modeldata);
-           
+
 
         }
 
@@ -59,18 +59,18 @@ namespace ECommerceSite.Controllers
         public IActionResult Edit(int Id)
         {
             var data = _db.Categories.Find(Id);
-            if(data == null)
+            if (data == null)
             {
                 return NotFound();
             }
             else
             {
                 return View(data);
-            }           
+            }
         }
 
         [HttpPost]
-        
+
         public IActionResult Edit(Category modeldata, IFormFile img)
         {
             if (ModelState.IsValid)
@@ -101,6 +101,27 @@ namespace ECommerceSite.Controllers
             {
                 return View(modeldata);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var data = _db.Categories.Find(id);
+
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return View(data);
+        }
+
+        [HttpPost]
+
+        public IActionResult Delete(Category data)
+        {
+            _db.Remove(data);
+            _db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
     }
