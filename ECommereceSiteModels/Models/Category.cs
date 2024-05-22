@@ -8,10 +8,7 @@ namespace ECommereceSiteModels.Models
         public int Id { get; set; }
 
         [Required]
-        public string CategoryName { get; set; }
-
-        [Required]
-
-        public string ImageUrl {  get; set; }
+        public string Name { get; set; }
+        public string ImageUrl { get; set; } = String.Empty;
     }
 }
