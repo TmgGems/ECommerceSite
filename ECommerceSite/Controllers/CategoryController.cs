@@ -117,9 +117,23 @@ namespace ECommerceSite.Controllers
 
         [HttpPost]
 
-        public IActionResult Delete(Category data)
+        public IActionResult Delete(Category modeldata)
         {
-            _db.Remove(data);
+            //Category? obj = _db.Categories.Find(u => u.Id == id);
+
+            //if (obj == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //if(ModelState.IsValid)
+            //{
+            //    _db.Categories.Remove(obj);
+            //    _db.SaveChanges();
+            //    return RedirectToAction("Index");
+            //}
+
+            _db.Categories.Remove(modeldata);
             _db.SaveChanges();
             return RedirectToAction("Index");
         }
