@@ -1,4 +1,6 @@
 ﻿using ECommereceSiteData.Data;
+using ECommereceSiteData.Repository;
+using ECommereceSiteData.Repository.IRepository;
 using ECommereceSiteModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +12,16 @@ namespace ECommerceSite.Controllers
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
+        public CategoryController( IWebHostEnvironment webHostEnvironment,IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
-            List<Category> data = _db.Categories.ToList();
+            List<Category> data = _unitOfWork.Category.GetAll().ToList();
             var checkData = data;
             return View(checkData);
         }
@@ -45,8 +48,8 @@ namespace ECommerceSite.Controllers
             if (ModelState.IsValid)
             {
                 modeldata.ImageUrl = "/Photos/" + img.FileName;
-                _db.Add(modeldata);
-                _db.SaveChanges();
+                _unitOfWork.Category.Add(modeldata);
+                _unitOfWork.Save();
                 return RedirectToAction("Index", "Category");
             }
             return View(modeldata);
@@ -58,7 +61,7 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Edit(int Id)
         {
-            var data = _db.Categories.Find(Id);
+            var data = _unitOfWork.Category.Get( u => u.Id == Id);
             if (data == null)
             {
                 return NotFound();
@@ -73,11 +76,34 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Edit(Category modeldata, IFormFile img)
         {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (ModelState.IsValid)
             {
                 if (img != null && img.Length > 0)
                 {
                     var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
+
+                    if (!string.IsNullOrEmpty(modeldata.ImageUrl))
+                    {
+                        //Delete old image
+                        try
+                        {
+                            // Construct the full old image path
+                            var oldImagePath = Path.Combine(wwwRootPath, modeldata.ImageUrl.TrimStart('/'));
+
+                            // Delete old image if it exists
+                            if (System.IO.File.Exists(oldImagePath))
+                            {
+                                System.IO.File.Delete(oldImagePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the exception or handle it as needed
+                            Console.WriteLine($"Error deleting old image: {ex.Message}");
+                        }
+
+                    }
                     using (var filestream = System.IO.File.Create(filepath))
                     {
                         img.CopyTo(filestream);
@@ -93,8 +119,8 @@ namespace ECommerceSite.Controllers
                         modeldata.ImageUrl = existingCategory.ImageUrl;
                     }
                 }
-                _db.Update(modeldata);
-                _db.SaveChanges();
+                _unitOfWork.Category.Update(modeldata);
+                _unitOfWork.Save();
                 return RedirectToAction("Index", "Category");
             }
             else
@@ -106,7 +132,7 @@ namespace ECommerceSite.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var data = _db.Categories.Find(id);
+            var data = _unitOfWork.Category.Get(u => u.Id == id);
 
             if (data == null)
             {
@@ -119,17 +145,25 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Delete(int? id)
         {
-            Category? obj = _db.Categories.FirstOrDefault(u => u.Id == id);
+            Category? obj = _unitOfWork.Category.Get(u => u.Id == id);
 
             if (obj == null)
             {
                 return NotFound();
             }
+            if (!string.IsNullOrEmpty(obj.ImageUrl))
+            {
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
 
             if (ModelState.IsValid)
             {
-                _db.Categories.Remove(obj);
-                _db.SaveChanges();
+                _unitOfWork.Category.Remove(obj);
+                _unitOfWork.Save();
                 return RedirectToAction("Index");
             }
 
