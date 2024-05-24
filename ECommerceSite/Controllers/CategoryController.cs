@@ -34,7 +34,7 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Create(Category modeldata, IFormFile img)
         {
-            string data = _unitOfWork.Category.Get(u => u.Name == modeldata.Name).ToString();
+            var data = _unitOfWork.Category.Get(u => u.Name == modeldata.Name);
             if(data != null)
             {
                 return RedirectToAction("Index");

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommereceSiteData.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240520052625_init")]
+    [Migration("20240524051734_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -32,11 +32,11 @@ namespace ECommereceSiteData.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CategoryName")
+                    b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
