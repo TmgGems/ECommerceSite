@@ -82,7 +82,7 @@ namespace ECommerceSite.Controllers
 
         [HttpPost]
 
-        public IActionResult Edit(Category modeldata, IFormFile img)
+        public IActionResult Edit(Category modeldata, IFormFile ? img)
         {
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (ModelState.IsValid)
@@ -121,7 +121,7 @@ namespace ECommerceSite.Controllers
                 else
                 {
                     // Retain the old image URL if no new image is uploaded
-                    var existingCategory = _db.Categories.AsNoTracking().FirstOrDefault(c => c.Id == modeldata.Id);
+                    var existingCategory = _unitOfWork.Category.Get(c => c.Id == modeldata.Id);
                     if (existingCategory != null)
                     {
                         modeldata.ImageUrl = existingCategory.ImageUrl;

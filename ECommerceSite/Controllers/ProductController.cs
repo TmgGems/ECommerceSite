@@ -9,6 +9,7 @@ namespace ECommerceSite.Controllers
     public class ProductController : Controller
     {
         private IUnitOfWork _unitOfWork;
+        private ApplicationDbContext _db;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public ProductController(IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
         {
@@ -18,7 +19,7 @@ namespace ECommerceSite.Controllers
 
         public IActionResult Index()
         {
-            
+
             var data = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return View(data);
         }
@@ -67,8 +68,84 @@ namespace ECommerceSite.Controllers
                 return View(modeldata);
 
             }
+        }
 
+        [HttpGet]
+        public IActionResult Edit(int? id)
+        {
+            IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
 
+            });
+            ViewBag.CategoryList = CategoryList;
+
+            var data = _unitOfWork.Product.Get(u => u.Id == id);
+            if (data == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(data);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Product modeldata, IFormFile ? img)
+        {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            if (ModelState.IsValid)
+            {
+                if (img != null && img.Length > 0)
+                {
+                    var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
+
+                    if (!string.IsNullOrEmpty(modeldata.ImageUrl))
+                    {
+                        //Delete old image
+                        try
+                        {
+                            // Construct the full old image path
+                            var oldImagePath = Path.Combine(wwwRootPath, modeldata.ImageUrl.TrimStart('/'));
+
+                            // Delete old image if it exists
+                            if (System.IO.File.Exists(oldImagePath))
+                            {
+                                System.IO.File.Delete(oldImagePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the exception or handle it as needed
+                            Console.WriteLine($"Error deleting old image: {ex.Message}");
+                        }
+
+                    }
+                    using (var filestream = System.IO.File.Create(filepath))
+                    {
+                        img.CopyTo(filestream);
+                    }
+                    modeldata.ImageUrl = "/Photos/" + img.FileName;
+                }
+                else
+                {
+                    // Retain the old image URL if no new image is uploaded
+                    var existingProduct = _unitOfWork.Product.Get(c => c.Id == modeldata.Id);
+                    if (existingProduct != null)
+                    {
+                        modeldata.ImageUrl = existingProduct.ImageUrl;
+                    }
+                }
+                _unitOfWork.Product.Update(modeldata);
+                _unitOfWork.Save();
+                return RedirectToAction("Index", "Product");
+            }
+            else
+            {
+                return View(modeldata);
+            }
         }
     }
 }
