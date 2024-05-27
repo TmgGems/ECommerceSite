@@ -147,5 +147,45 @@ namespace ECommerceSite.Controllers
                 return View(modeldata);
             }
         }
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var data = _unitOfWork.Product.Get(x => x.Id == id);
+            if (data != null)
+            {
+                return View(data);
+            }
+             else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int ? id) 
+        {
+            Product ? obj = _unitOfWork.Product.Get(u => u.Id == id);
+
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            if (!string.IsNullOrEmpty(obj.ImageUrl))
+            {
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Product.Remove(obj);
+                _unitOfWork.Save();
+                return RedirectToAction("Index");
+            }
+
+            return View(obj);
+        }
     }
 }
