@@ -4,8 +4,9 @@ using ECommereceSiteModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ECommerceSite.Controllers
+namespace ECommerceSite.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class ProductController : Controller
     {
         private IUnitOfWork _unitOfWork;
@@ -93,7 +94,7 @@ namespace ECommerceSite.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Product modeldata, IFormFile ? img)
+        public IActionResult Edit(Product modeldata, IFormFile? img)
         {
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (ModelState.IsValid)
@@ -155,16 +156,16 @@ namespace ECommerceSite.Controllers
             {
                 return View(data);
             }
-             else
+            else
             {
                 return NotFound();
             }
         }
 
         [HttpPost]
-        public IActionResult Delete(int ? id) 
+        public IActionResult Delete(int? id)
         {
-            Product ? obj = _unitOfWork.Product.Get(u => u.Id == id);
+            Product? obj = _unitOfWork.Product.Get(u => u.Id == id);
 
             if (obj == null)
             {
