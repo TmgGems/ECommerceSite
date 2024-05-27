@@ -1,4 +1,6 @@
 using ECommerceSite.Models;
+using ECommereceSiteData.Repository.IRepository;
+using ECommereceSiteModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -9,16 +11,29 @@ namespace ECommerceSite.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<Category> categoryList = _unitOfWork.Category.GetAll().ToList();
+            return View(categoryList);
         }
 
+        public IActionResult Products(int categoriesid)
+        {
+            List<Product> product = _unitOfWork.Product.GetAll().Where(u => u.CategoryId == categoriesid).ToList();
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
         public IActionResult Privacy()
         {
             return View();
