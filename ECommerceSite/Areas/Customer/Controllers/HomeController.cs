@@ -34,6 +34,16 @@ namespace ECommerceSite.Areas.Customer.Controllers
             }
             return View(product);
         }
+
+        public IActionResult ProductDetails(int productId)
+        {
+            var data = _unitOfWork.Product.Get(u => u.Id == productId);
+            if(data == null)
+            {
+                return NotFound();
+            }
+            return View(data);
+        }
         public IActionResult Privacy()
         {
             return View();

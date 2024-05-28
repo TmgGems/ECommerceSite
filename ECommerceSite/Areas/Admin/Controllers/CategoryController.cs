@@ -22,9 +22,8 @@ namespace ECommerceSite.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Category> data = _unitOfWork.Category.GetAll().ToList();
-            var checkData = data;
-            return View(checkData);
+            List<Category> data = _unitOfWork.Category.GetAll().ToList();         
+            return View(data);
         }
 
         public IActionResult Create()
