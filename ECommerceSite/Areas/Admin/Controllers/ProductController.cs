@@ -1,67 +1,88 @@
 ﻿using ECommereceSiteData.Data;
-using ECommereceSiteData.Repository;
 using ECommereceSiteData.Repository.IRepository;
 using ECommereceSiteModels.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.IO;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ECommerceSite.Controllers
+namespace ECommerceSite.Areas.Admin.Controllers
 {
-    public class CategoryController : Controller
+    [Area("Admin")]
+    public class ProductController : Controller
     {
+        private IUnitOfWork _unitOfWork;
+        private ApplicationDbContext _db;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly ApplicationDbContext _db;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CategoryController( IWebHostEnvironment webHostEnvironment,IUnitOfWork unitOfWork)
+        public ProductController(IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
+            _unitOfWork = unitOfWork;
         }
+
         public IActionResult Index()
         {
-            List<Category> data = _unitOfWork.Category.GetAll().ToList();
-            var checkData = data;
-            return View(checkData);
-        }
 
-        public IActionResult Create()
-        {
-            return View();
-        }
-        [HttpPost]
-
-        public IActionResult Create(Category modeldata, IFormFile img)
-        {
-
-            if (img != null && img.Length > 0)
-            {
-                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", img.FileName);
-                using (var filestream = System.IO.File.Create(filepath))
-                {
-                    img.CopyTo(filestream);
-                }
-            }
-
-
-            if (ModelState.IsValid)
-            {
-                modeldata.ImageUrl = "/Photos/" + img.FileName;
-                _unitOfWork.Category.Add(modeldata);
-                _unitOfWork.Save();
-                return RedirectToAction("Index", "Category");
-            }
-            return View(modeldata);
-
-
+            var data = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            return View(data);
         }
 
         [HttpGet]
-
-        public IActionResult Edit(int Id)
+        public IActionResult Create()
         {
-            var data = _unitOfWork.Category.Get( u => u.Id == Id);
+            IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
+
+            });
+            ViewBag.CategoryList = CategoryList;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Product modeldata, IFormFile ProductImg)
+        {
+            var data = _unitOfWork.Product.Get(u => u.ProductName == modeldata.ProductName);
+            if (data != null)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                if (ProductImg != null && ProductImg.Length > 0)
+                {
+                    var filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Photos", ProductImg.FileName);
+                    using (var filestream = System.IO.File.Create(filepath))
+                    {
+                        ProductImg.CopyTo(filestream);
+                    }
+                    modeldata.ImageUrl = "/Photos/" + ProductImg.FileName;
+                }
+
+
+                if (ModelState.IsValid)
+                {
+
+                    _unitOfWork.Product.Add(modeldata);
+                    _unitOfWork.Save();
+                    return RedirectToAction("Index", "Product");
+                }
+                return View(modeldata);
+
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int? id)
+        {
+            IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
+
+            });
+            ViewBag.CategoryList = CategoryList;
+
+            var data = _unitOfWork.Product.Get(u => u.Id == id);
             if (data == null)
             {
                 return NotFound();
@@ -73,8 +94,7 @@ namespace ECommerceSite.Controllers
         }
 
         [HttpPost]
-
-        public IActionResult Edit(Category modeldata, IFormFile img)
+        public IActionResult Edit(Product modeldata, IFormFile? img)
         {
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (ModelState.IsValid)
@@ -113,39 +133,39 @@ namespace ECommerceSite.Controllers
                 else
                 {
                     // Retain the old image URL if no new image is uploaded
-                    var existingCategory = _db.Categories.AsNoTracking().FirstOrDefault(c => c.Id == modeldata.Id);
-                    if (existingCategory != null)
+                    var existingProduct = _unitOfWork.Product.Get(c => c.Id == modeldata.Id);
+                    if (existingProduct != null)
                     {
-                        modeldata.ImageUrl = existingCategory.ImageUrl;
+                        modeldata.ImageUrl = existingProduct.ImageUrl;
                     }
                 }
-                _unitOfWork.Category.Update(modeldata);
+                _unitOfWork.Product.Update(modeldata);
                 _unitOfWork.Save();
-                return RedirectToAction("Index", "Category");
+                return RedirectToAction("Index", "Product");
             }
             else
             {
                 return View(modeldata);
             }
         }
-
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var data = _unitOfWork.Category.Get(u => u.Id == id);
-
-            if (data == null)
+            var data = _unitOfWork.Product.Get(x => x.Id == id);
+            if (data != null)
+            {
+                return View(data);
+            }
+            else
             {
                 return NotFound();
             }
-            return View(data);
         }
 
         [HttpPost]
-
         public IActionResult Delete(int? id)
         {
-            Category? obj = _unitOfWork.Category.Get(u => u.Id == id);
+            Product? obj = _unitOfWork.Product.Get(u => u.Id == id);
 
             if (obj == null)
             {
@@ -159,18 +179,14 @@ namespace ECommerceSite.Controllers
                     System.IO.File.Delete(imagePath);
                 }
             }
-
             if (ModelState.IsValid)
             {
-                _unitOfWork.Category.Remove(obj);
+                _unitOfWork.Product.Remove(obj);
                 _unitOfWork.Save();
                 return RedirectToAction("Index");
             }
 
             return View(obj);
-            
         }
-
     }
-
 }
