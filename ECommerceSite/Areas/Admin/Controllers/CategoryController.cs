@@ -1,7 +1,9 @@
-﻿using ECommereceSiteData.Data;
+﻿using ECommerceSite.Utility;
+using ECommereceSiteData.Data;
 using ECommereceSiteData.Repository;
 using ECommereceSiteData.Repository.IRepository;
 using ECommereceSiteModels.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -9,6 +11,7 @@ using System.IO;
 namespace ECommerceSite.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles =SD.AdminRole)]
     public class CategoryController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;

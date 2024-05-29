@@ -1,4 +1,6 @@
 ﻿using ECommereceSiteModels.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ECommereceSiteData.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext :IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -18,5 +20,7 @@ namespace ECommereceSiteData.Data
         public DbSet<Category> Categories { get; set; }
 
         public DbSet<Product> Products { get; set; }
+
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     }
 }
