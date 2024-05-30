@@ -10,7 +10,7 @@ namespace ECommereceSiteData.Repository.IRepository
     {
         ICategoryRepositroy Category { get; }
         IProductRepository Product { get; }
-
+        ICompanyRepository Company { get; }
         void Save();
     }
 }
