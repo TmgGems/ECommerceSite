@@ -11,8 +11,8 @@ namespace ECommereceSiteData.Repository.IRepository
     {
         //T - category or any other  model that we want to perform CRUD operations
         //IEnumerable<T> GetAll();
-        IEnumerable<T> GetAll(string? includeProperties = null);
-        T Get(Expression<Func<T, bool>> filter);
+        IEnumerable<T> GetAll(Expression<Func<T, bool>> ?filter = null,string? includeProperties = null);
+        T Get(Expression<Func<T, bool>> filter, bool tracked = false);
         void Add(T entity);
 
 
