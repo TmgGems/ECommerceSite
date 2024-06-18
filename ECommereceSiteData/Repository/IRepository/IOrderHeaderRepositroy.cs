@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace ECommereceSiteData.Repository.IRepository
 {
-    public interface ICategoryRepositroy : IRepository <Category>
+    public interface IOrderHeaderRepositroy : IRepository <OrderHeader>
     {
-        void Update(Category obj);
+        void Update(OrderHeader obj);
     }
 }

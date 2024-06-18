@@ -15,6 +15,10 @@ namespace ECommereceSiteData.Repository.IRepository
         IShoppingCartRepository ShoppingCart { get; }
 
         IApplicationUserRepository ApplicationUser { get; }
+
+        IOrderHeaderRepositroy OrderHeader { get; }
+
+        IOrderDetailRepository OrderDetail { get; }
         void Save();
     }
 }

@@ -21,7 +21,11 @@ namespace ECommereceSiteData.Repository
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
 
-        public UnitOfWork(ApplicationDbContext db)
+		public IOrderHeaderRepositroy OrderHeader { get; private set; }
+
+		public IOrderDetailRepository OrderDetail { get; private set; }
+
+		public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             Category = new CategoryRepository(_db);
@@ -29,6 +33,8 @@ namespace ECommereceSiteData.Repository
             Company = new CompanyRepository(_db);
             ShoppingCart = new ShoppingCartRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
+            OrderDetail = new OrderDetailRepository(_db);
+            OrderHeader = new OrderHeaderRepository(_db);
 
         }
         public void Save()
